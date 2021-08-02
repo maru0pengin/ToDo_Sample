@@ -34,6 +34,7 @@ class Counter extends Component{
 
   handleSubmit(event) {
     alert('A name was submitted: ' + this.state.text);
+    this.setState({ text: ''})
     event.preventDefault();
   }
 
