@@ -48,7 +48,9 @@ class Counter extends Component{
       .then(console.log)
       .catch(console.error);
   }
-
+  updateItem(id) {
+    alert(`id:${id}のアイテムの編集に成功しました！`);
+  }
 
   //Stateの値を更新する場合、this.setSate()で更新する
 
@@ -109,7 +111,10 @@ class Counter extends Component{
           <input type="submit" value="送信" />
         </form>
         {this.state.items.map((item) => {
-          return <div key={item.id}>{item.title}<button onClick={() => { this.deleteItem(item.id) }}>削除</button></div>
+          return <div key={item.id}>{item.title}
+            <button onClick={() => { this.deleteItem(item.id) }}>削除</button>
+            <button onClick={() => { this.updateItem(item.id) }}>編集</button>
+          </div>
         })}
       </div>
     );
