@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { baseAPI } from './api/base'
 
 const App = () => {
   return <ToDo />
@@ -8,7 +9,6 @@ class ToDo extends Component{
   constructor(props) {
     super(props);
     this.state = {
-      value: 0,
       text: '',
       isLoaded: false,
       items: [],
@@ -24,15 +24,14 @@ class ToDo extends Component{
     this.initItems()
   }
   initItems() {
-    fetch("http://localhost:3000/api/v1/posts") //api
-    .then(res => res.json()) 
-    .then(json => {
-      console.log(json.data);
-      this.setState({
-        isLoaded: true,
-        items: json.data
-      });
-    });
+    baseAPI('posts', {}, 'GET')
+      .then((res) => {
+        console.log(res.data)
+        this.setState({
+          isLoaded: true,
+          items: res.data
+        })
+      })
   }
 
   deleteItem(id) {
@@ -93,17 +92,6 @@ class ToDo extends Component{
 
   //Stateの値を更新する場合、this.setSate()で更新する
 
-  //インクリメントする関数
-  onIncrement = () => {
-    //setStateでstateの値を更新する
-    this.setState({ value: this.state.value + 1 });
-  }
-
-  //デクリメントする関数
-  onDecrement = () => {
-    //setStateでstateの値で更新する
-    this.setState({ value: this.state.value - 1 });
-  }
 
   handleChange(event) {
     this.setState({ text: event.target.value });
@@ -139,13 +127,9 @@ class ToDo extends Component{
     return (
       <div>
         <div>
-          カウント値：{this.state.value}<br />
           入力値：{this.state.text}
         </div>
-        <div>
-          <button type="button" onClick={this.onIncrement}>+</button>
-          <button type="button" onClick={this.onDecrement}>-</button>
-        </div>
+
         <form onSubmit={this.handleSubmit}>
           <label>
             <input type="text" placeholder="新規タスクを入力"  value={this.state.text} onChange={this.handleChange} />
