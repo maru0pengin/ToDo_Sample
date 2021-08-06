@@ -1,6 +1,6 @@
 import { apiUrl } from '../env.js'
 
-export async function baseAPI(endpoint, options = { auth: true }, method = 'GET', body) {
+export async function baseAPI({ endpoint, options = { auth: true }, method = 'GET', body }) {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => {
     controller.abort()

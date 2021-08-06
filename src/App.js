@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { baseAPI } from './api/base'
-
+import { ToDoRepository } from './models/ToDo'
 const App = () => {
   return <ToDo />
 }
@@ -23,33 +22,41 @@ class ToDo extends Component{
   componentDidMount() { //render直後に行いたい処理を書くところ
     this.initItems()
   }
-  initItems() {
-    baseAPI('posts', {}, 'GET')
-      .then((res) => {
-        console.log(res.data)
-        this.setState({
-          isLoaded: true,
-          items: res.data
-        })
+  async initItems() {
+    try {
+      let res = await new ToDoRepository().all()
+      this.setState({
+        isLoaded: true,
+        items: res.data
       })
+    } catch (err) {
+      console.log(err)
+    }
   }
 
-  deleteItem(id) {
-    const method = "DELETE"
-    const headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    };
-    fetch(`http://localhost:3000/api/v1/posts/${id}`, { method, headers })
-      .then(
-        (res) => {
-          this.initItems()
-          alert(`id:${id}のアイテムの削除に成功しました！`);
-          return res.json()
-        })
-      .then(console.log)
-      .catch(console.error);
+  async deleteItem(id) {
+    try {
+      await new ToDoRepository().delete(id)
+      this.initItems()
+    } catch (err) {
+      console.log(err)
+    }
   }
+  
+  async updateItem(id) {
+    try {
+      await new ToDoRepository().update(id, { title: this.state.updateTitle })
+      alert(`id:${id}のアイテムの編集に成功しました！`)
+      this.initItems()
+      this.setState({
+        updateId: '',
+        updateTitle: ''
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   setUpdateItem(id,title) {
     this.setState({
       updateId: id,
@@ -62,36 +69,8 @@ class ToDo extends Component{
       updateTitle: ''
     })
   }
-  updateItem(id) {
-    const method = "PATCH"
-    const headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    };
-    const body = JSON.stringify({
-      "title": this.state.updateTitle
-    });
-    fetch(`http://localhost:3000/api/v1/posts/${id}`, { method, headers, body })
-      .then(
-        (res) => {
-          console.log(res.stats)
-          this.initItems()
-          alert(`id:${id}のアイテムの編集に成功しました！`);
-          this.setState({
-            updateId: ''
-          })
-          return res.json()
-        })
-      .then(
-        console.log
-      )
-      .catch((err) => {
-        console.log(`err:${err}`);
-      });
-  }
 
   //Stateの値を更新する場合、this.setSate()で更新する
-
 
   handleChange(event) {
     this.setState({ text: event.target.value });
@@ -100,25 +79,17 @@ class ToDo extends Component{
     this.setState({ updateTitle: event.target.value });
   }
 
-  handleSubmit(event) {
-    const method = "POST"
-    const headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    };
-    const body = JSON.stringify({
-      "title": this.state.text
-    });
-    fetch("http://localhost:3000/api/v1/posts", { method, headers, body })
-      .then(
-        (res) => {
-          this.initItems()
-          return res.json()
-        })
-      .then(console.log)
-      .catch(console.error);
-    alert('A name was submitted: ' + this.state.text);
-    this.setState({ text: ''})
+  async handleSubmit(event) {
+    try {
+      await new ToDoRepository().create({ title: this.state.text })
+      alert('アイテムの作成に成功しました！')
+      this.initItems()
+      this.setState({
+        text: '',
+      })
+    } catch (err) {
+      console.log(err)
+    }
     event.preventDefault();
   }
 
